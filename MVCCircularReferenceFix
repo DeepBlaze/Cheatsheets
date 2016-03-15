@@ -1,0 +1,23 @@
+http://stackoverflow.com/questions/5588143/ef-4-1-code-first-json-circular-reference-serialization-error
+I think they have fixed this in the latest version.
+
+Check out the help docs under the section "Serializing and Deserializing JSON -> Serialization and Preserving Object References".
+
+Set this setting when initializing the JSON.Net Serializer:
+
+PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+So an example would be this:
+
+var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
+
+string json = JsonConvert.SerializeObject(people, Formatting.Indented, serializerSettings);
+I verified that this works with my code first solution, and a circular reference in the navigation properties. If you look at the resulting JSON it should have "$id" and "$ref" properties everywhere.
+
+public string get()
+        {
+            var hors = db.Horarios.Include("periodos").ToList() ;
+            var serializerSettings = new JsonSerializerSettings { PreserveReferencesHandling = PreserveReferencesHandling.Objects };
+
+            string json = JsonConvert.SerializeObject(hors, Formatting.Indented, serializerSettings);
+            return json;
+        }
